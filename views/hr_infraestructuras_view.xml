@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- Menus -->
+
+    <menuitem id="menu_hr_infraestructuras_root" name="Infraestructuras" sequence="101" web_icon="hr_infraestructuras,static/description/icon.png" groups="base.group_user"/>
+    <menuitem id="menu_hr_infraestructuras" name="Cesión de infraestructuras" action="infraestructuras_action" sequence="101" parent="menu_hr_infraestructuras_root" groups="base.group_user"/>
+    <menuitem id="menu_hr_infraestructuras_instalaciones" name="Instalaciones" action="instalaciones_action" sequence="101" parent="menu_hr_infraestructuras_root" groups="base.group_user"/>     
+    <menuitem id="menu_hr_infraestructuras_requerimientos" name="Requerimientos" action="requerimientos_action" sequence="101" parent="menu_hr_infraestructuras_root" groups="base.group_user"/>             
+    <menuitem id="menu_hr_infraestructuras_informes" name="Informes" sequence="101" action="infraestructuras_informes_action" parent="menu_hr_infraestructuras_root" groups="base.group_hr_gestion_infraestructuras"/>
+<!-- Menus -->
+
+<!-- Acciones -->
+    <record id="infraestructuras_action" model="ir.actions.act_window">
+        <field name="name">Infraestructuras</field>
+        <field name="res_model">hr.infraestructuras</field>
+        <field name="view_mode">tree,form,calendar</field>      
+        <field name="search_view_id" ref="view_hr_infraestructuras_filter"/>          
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click aqui para crear una cesión de infraestructura.
+          </p><p>
+            De esta forma crearas una cesión de infraestructuras a terceros.
+          </p>
+        </field>
+    </record>
+
+    <record id="instalaciones_action" model="ir.actions.act_window">
+        <field name="name">Instalaciones</field>
+        <field name="res_model">hr.infraestructuras.instalaciones</field>
+        <field name="view_mode">tree,form</field>                
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click aqui para crear una instalación.
+          </p>
+        </field>
+    </record>
+    
+    <record id="requerimientos_action" model="ir.actions.act_window">
+        <field name="name">Requerimientos</field>
+        <field name="res_model">hr.infraestructuras.requerimientos</field>
+        <field name="view_mode">tree,form</field>                
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click aqui para crear un requerimiento.
+          </p>
+        </field>
+    </record>
+
+    <record id="infraestructuras_informes_action" model="ir.actions.act_window">
+        <field name="name">Informe de infraestructuras</field>
+        <field name="res_model">hr.infraestructuras</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">pivot</field>
+    </record>
+<!-- Acciones -->
+
+<!-- Vistas -->
+<!-- Formulario -->
+    <record id="hr_infraestructuras_form_view" model="ir.ui.view">
+            <field name="name">hr.infraestructuras.form</field>
+            <field name="model">hr.infraestructuras</field>
+            <field eval="25" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Infraestructuras">
+                <sheet>
+                    <div class="oe_button_box">
+                    <!--Si en el attrs ponemos ['|'('state...] ese | significa que es OR en el caso de que haya dos condiciones, si lo quitas es AND 
+                    Con este atributo ponemos el boton invisible si el estado es distinto a draft y la variable
+                    inv es 1 (es decir si el usuario logeado no es el encargado de la actividad)-->
+                       
+                        <button name="action_get_attachment_view"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            type="object">
+                            <field name="x_adjunto" widget="statinfo" string="Adjuntos"/>
+                        </button>
+                        
+                    </div>  
+                    <group name="container_row_2">
+                        <group string="Cesión de infraestructura">
+                            <field name="name" style="width:400px"/>
+                            <field name="x_asistentes" style="width:200px"/>                        
+                        </group>
+                        <group string="Duración">
+                            <field name="x_fecha_inicio" style="width:200px"/>
+                            <field name="x_fecha_fin" style="width:200px"/>
+                            <field name="x_duracion_dias" style="width:200px"/>
+                            <field name="x_hora_inicio" style="width:200px" widget="timepicker" options="{'step': '30', 'minTime': '8:00am', 'maxTime': '19:00pm'}"/>
+                            <field name="x_hora_fin" style="width:200px" widget="timepicker" options="{'step': '30', 'minTime': '8:00am', 'maxTime': '19:00pm'}"/>
+                            <field name="x_duracion_horas" attrs="{'invisible': [('x_duracion_horas', '=', 0)]}" style="width:200px" class="oe_inline"/> horas                            
+                        </group>
+                    </group>
+                    <group name="container_row_2">
+                        <group string="Instalaciones">
+                            <field name="instalaciones2" string="Instalaciones" widget="many2many_checkboxes"/>
+                        </group>
+                        <group string="Requerimientos">
+                            <field name="x_requerimientos" string="Requerimientos" widget="many2many_checkboxes"/> 
+                        </group>            
+                    </group>
+                    <group name="container_row_2">
+                        <group string="Persona de contacto">
+                            <field name="x_solicitante" style="width:400px"/>
+                            <field name="x_correo" style="width:400px" widget="email"/>
+                            <field name="x_telefono" style="width:400px" widget="phone"/>
+                            <field name="x_institucion" style="width:400px"/>                      
+                        </group>
+                            <group string="Observaciones">
+                            <field name="x_observaciones"/>
+                        </group>
+
+                    
+                    </group>
+                    <div attrs="{'invisible': [('analytic_account_id', '=', 0)]}">
+                        <group string="Partes de tiempo">
+                          <field name="timesheet_ids" context="{'default_user_id' : uid, 'default_account_id' : analytic_account_id, 'default_cesion_infraestructuras': id,'default_is_timesheet':1}">
+                             <tree editable="bottom" string="Timesheet Activities" default_order="date">
+                                <field name="date"/>
+                                <field name="user_id" required="1"/>
+                                <field name="name"/>
+                                <field name="account_id"/>
+                                <field name="cesion_infraestructuras"/>
+                                <field name="unit_amount" string="Duration" sum="Total time" widget="float_time"/>
+                            </tree>
+                          </field>
+                          <field name="analytic_account_id" invisible="1"/>
+                        </group>
+                    </div>
+                </sheet>
+                </form>
+            </field>
+    </record>
+    
+    <record id="hr_infraestructuras_instalaciones_form_view" model="ir.ui.view">
+            <field name="name">hr.infraestructuras.instalaciones.form</field>
+            <field name="model">hr.infraestructuras.instalaciones</field>
+            <field eval="25" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Instalaciones">
+                <sheet>
+                    <group string="Instalaciones">
+                        <field name="name" style="width:500px"/>
+                    </group>
+                </sheet>
+                </form>
+            </field>
+    </record>
+    
+    <record id="hr_infraestructuras_requerimientos_form_view" model="ir.ui.view">
+            <field name="name">hr.infraestructuras.requerimientos.form</field>
+            <field name="model">hr.infraestructuras.requerimientos</field>
+            <field eval="25" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Requerimientos">
+                <sheet>
+                    <group string="Requerimientos">
+                        <field name="name" style="width:500px"/>
+                    </group>
+                </sheet>
+                </form>
+            </field>
+    </record>
+
+<!-- Formulario -->
+
+<!-- Tree -->
+    <record id="hr_infraestructuras_tree" model="ir.ui.view">
+        <field name="name">hr.infraestructuras.tree</field>
+        <field name="model">hr.infraestructuras</field>
+        <field name="arch" type="xml">
+            <tree string="Infraestructuras">
+                <field name="name"/>
+                <field name="x_solicitante"/>
+                <field name="x_fecha_inicio"/>
+                <field name="x_fecha_fin"/>
+                <field name="x_hora_inicio"/>
+                <field name="x_hora_fin"/>
+                <field name="x_correo"/>
+                <field name="x_telefono"/>
+                <field name="x_institucion"/>
+            </tree>
+        </field>
+    </record>
+    
+
+
+
+<!-- Tree -->
+
+<!-- Calendario -->
+        <record id="view_infraestructuras_calendar" model="ir.ui.view">
+            <field name="name">Calendario de uso de infraestructuras</field>
+            <field name="model">hr.infraestructuras</field>
+            <field name="arch" type="xml">
+                <calendar string="Infraestructuras" color="x_institucion"
+                          date_start="x_fecha_inicio" date_stop="x_fecha_fin"
+                          mode="month"
+                          quick_add="False">
+                    <field name="name"/>
+                </calendar>
+            </field>
+        </record>
+ 
+<!-- Calendario -->
+
+<!-- Graph 
+    <record id="hr_infraestructuras_view_graph" model="ir.ui.view">
+        <field name="name">hr.infraestructuras.graph</field>
+        <field name="model">hr.infraestructuras</field>
+        <field name="type">graph</field>
+        <field name="arch" type="xml">
+            <graph string="Informe de infraestructuras">
+                <field name="name" type="col"/>
+                <field name="x_fecha_inicio" interval="month" type="row"/>
+                <field name="x_duracion_dias" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+ -->
+
+<!-- Vistas -->
+
+<!-- Filtros -->
+
+        <record id="view_hr_infraestructuras_filter" model="ir.ui.view">
+            <field name="name">hr.infraestructuras.filter</field>
+            <field name="model">hr.infraestructuras</field>
+            <field name="arch" type="xml">
+                <search string="Infraestructuras">
+                    <field name="name"/>
+                    <field name="x_solicitante"/>
+                    <field name="instalaciones2"/>
+                    <field name="x_correo"/>
+                    <field name="x_telefono"/>
+                    <field name="x_institucion"/>
+                    <field name="x_fecha_inicio"/>
+                    <field name="x_fecha_fin"/>
+                    <field name="x_requerimientos"/>
+                    <separator />
+                    <group expand="0" string="Group By">
+                        <filter string="Fecha de inicio" context="{'group_by': 'x_fecha_inicio'}"/>
+                        <filter string="Fecha de fin" context="{'group_by': 'x_fecha_fin'}"/>
+                    </group>
+                
+                </search>
+            </field>
+        </record>
+<!-- Filtros -->
+ 
+</odoo>
